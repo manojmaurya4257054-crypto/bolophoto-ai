@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BoloPhoto AI - Photo ko Banao Talking Video</title>
+</head>
+<body style="font-family:system-ui;padding:20px;background:#fff7e8">
+<h1>📸 BoloPhoto AI</h1>
+<h2>Apni Photo Ko Banao <span style="color:#ff5a1f">Talking Video</span></h2>
+<p>Photo upload karo, text likho, seconds me video pao.</p>
+<div style="background:#fff;padding:20px;border-radius:12px;box-shadow:0 4px 20px #0001;max-width:500px">
+<input type="file" id="file" accept="image/*"><br><br>
+<input type="text" id="dialogue" placeholder="Jo bulwana hai likho..." style="width:100%;padding:12px;border-radius:8px;border:1px solid #ddd">
+<br><br>
+<button onclick="makeVideo()" style="width:100%;padding:14px;background:#ff5a1f;color:#fff;border:none;border-radius:8px;font-weight:bold;font-size:16px">✨ Free Video Banao</button>
+<p style="font-size:12px;text-align:center;color:green;margin-top:8px">✅ 1 Free video - No credit card</p>
+<div id="result" style="display:none;margin-top:20px">
+<p>✅ Video Ready! (Demo)</p>
+</div>
+</div>
+<div style="margin-top:30px">
+<h3>Pricing</h3>
+<p>₹399 / week - 10 videos, 720p, watermark</p>
+<p><b>₹599 / week - Most Popular - 50 videos, 1080p, No watermark</b></p>
+</div>
+<script>
+let freeUsed = localStorage.getItem('freeUsed')==='1';
+function makeVideo(){
+ const text=document.getElementById('dialogue').value;
+ const file=document.getElementById('file').files[0];
+ if(!file || !text){alert('Photo aur text dono daalo');return;}
+ if(freeUsed){alert('1 free video khatam! ₹399 plan lo.');return;}
+ document.getElementById('result').style.display='block';
+ alert('DEMO: Yaha D-ID API ka video ayega. Frontend ready hai!');
+ localStorage.setItem('freeUsed','1');
+}
+</script>
+</body>
+                                                                                                                                                                              </html>
