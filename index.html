@@ -3,38 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BoloPhoto AI - Photo ko Banao Talking Video</title>
+<title>BoloPhoto AI - Apni Photo Ko Banao Talking Video</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:'Poppins',sans-serif;background:#FFFBEB} .gradient{background:linear-gradient(135deg,#ff6a00,#ee0979)}</style>
 </head>
-<body style="font-family:system-ui;padding:20px;background:#fff7e8">
-<h1>📸 BoloPhoto AI</h1>
-<h2>Apni Photo Ko Banao <span style="color:#ff5a1f">Talking Video</span></h2>
-<p>Photo upload karo, text likho, seconds me video pao.</p>
-<div style="background:#fff;padding:20px;border-radius:12px;box-shadow:0 4px 20px #0001;max-width:500px">
-<input type="file" id="file" accept="image/*"><br><br>
-<input type="text" id="dialogue" placeholder="Jo bulwana hai likho..." style="width:100%;padding:12px;border-radius:8px;border:1px solid #ddd">
-<br><br>
-<button onclick="makeVideo()" style="width:100%;padding:14px;background:#ff5a1f;color:#fff;border:none;border-radius:8px;font-weight:bold;font-size:16px">✨ Free Video Banao</button>
-<p style="font-size:12px;text-align:center;color:green;margin-top:8px">✅ 1 Free video - No credit card</p>
-<div id="result" style="display:none;margin-top:20px">
-<p>✅ Video Ready! (Demo)</p>
+<body class="text-gray-900">
+<header class="p-4 flex justify-between items-center max-w-6xl mx-auto">
+<div class="font-bold text-xl">📸 BoloPhoto AI</div>
+<a href="#pricing" class="bg-black text-white px-4 py-2 rounded-full text-sm">Pricing Dekho</a>
+</header>
+<section class="max-w-6xl mx-auto px-4 py-10 grid md:grid-cols-2 gap-8 items-center">
+<div>
+<h1 class="text-4xl md:text-5xl font-bold leading-tight">Apni Photo Ko Banao <span class="text-orange-600">Bolta Hua Video</span></h1>
+<p class="mt-4 text-gray-600">Bas photo upload karo, text likho, 30 second me AI aapki photo ko bolta hua video bana dega.</p>
+<div class="mt-6 flex gap-2 text-xs"><span class="bg-green-100 text-green-700 px-3 py-1 rounded-full">✓ No Watermark</span><span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">✓ Hindi + English</span></div>
 </div>
+<div class="bg-white rounded-2xl shadow-xl p-5 border">
+<div id="previewBox" class="w-full h-48 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 mb-3 overflow-hidden">Photo Preview</div>
+<input id="photo" type="file" accept="image/*" class="w-full text-sm mb-3">
+<textarea id="text" placeholder="Jo bulwana hai likho... ex: Namaste dosto!" class="w-full border rounded-xl p-3 text-sm h-24"></textarea>
+<button onclick="makeVideo()" id="btn" class="w-full mt-3 gradient text-white py-3 rounded-xl font-bold">✨ Free Video Banao - 0₹</button>
+<div id="result" class="hidden mt-4 bg-black rounded-xl p-3 text-white text-sm text-center"></div>
 </div>
-<div style="margin-top:30px">
-<h3>Pricing</h3>
-<p>₹399 / week - 10 videos, 720p, watermark</p>
-<p><b>₹599 / week - Most Popular - 50 videos, 1080p, No watermark</b></p>
+</section>
+<section id="pricing" class="max-w-6xl mx-auto px-4 py-8">
+<h2 class="text-2xl font-bold text-center mb-6">Pricing - Paise Vasool</h2>
+<div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white p-6 rounded-2xl border"><h3 class="font-bold">Starter - ₹399 / week</h3><a href="#" class="block mt-4 text-center border py-2 rounded-xl font-bold">₹399 Se Shuru Karo</a></div>
+<div class="bg-black text-white p-6 rounded-2xl border-2 border-orange-500 relative"><span class="absolute -top-3 right-4 bg-orange-500 text-xs px-3 py-1 rounded-full">MOST POPULAR</span><h3 class="font-bold">Pro - ₹599 / week</h3><a href="https://razorpay.com/payment-links" target="_blank" class="block mt-4 text-center bg-white text-black py-2 rounded-xl font-bold">₹599 Wala Lo</a></div>
 </div>
+</section>
 <script>
-let freeUsed = localStorage.getItem('freeUsed')==='1';
+const photo=document.getElementById('photo'),previewBox=document.getElementById('previewBox');
+photo.addEventListener('change',e=>{const url=URL.createObjectURL(e.target.files[0]);previewBox.innerHTML=`<img src="${url}" class="w-full h-full object-cover">`});
 function makeVideo(){
- const text=document.getElementById('dialogue').value;
- const file=document.getElementById('file').files[0];
- if(!file || !text){alert('Photo aur text dono daalo');return;}
- if(freeUsed){alert('1 free video khatam! ₹399 plan lo.');return;}
- document.getElementById('result').style.display='block';
- alert('DEMO: Yaha D-ID API ka video ayega. Frontend ready hai!');
- localStorage.setItem('freeUsed','1');
+ if(!photo.files[0]){alert('Pehle photo select karo!');return;}
+ document.getElementById('btn').innerText='⏳ Video Ban Raha Hai...';
+ document.getElementById('result').classList.remove('hidden');
+ document.getElementById('result').innerText='Video ban raha hai... 30 sec wait karo (Demo)';
+ setTimeout(()=>{document.getElementById('result').innerHTML='✅ Demo Ready! Asli API lagane ke baad yaha real video ayega.';document.getElementById('btn').innerText='✨ Free Video Banao - 0₹';},2500);
 }
 </script>
 </body>
-                                                                                                                                                                              </html>
+ </html>
