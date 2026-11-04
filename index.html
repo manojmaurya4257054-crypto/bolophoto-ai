@@ -45,14 +45,14 @@ const photo = document.getElementById('photo');
 const previewBox = document.getElementById('previewBox');
 photo.addEventListener('change', e => {
   const url = URL.createObjectURL(e.target.files[0]);
-  previewBox.innerHTML = 
-});previewBox.innerHTML = "";
-const img = document.createElement('img');
-img.src = url;
-img.style.width = "100%";
-img.style.height = "100%";
-img.style.objectFit = "cover";
-previewBox.appendChild(img);
+  previewBox.innerHTML = "";
+  const img = document.createElement('img');
+  img.src = url;
+  img.style.width = "100%";
+  img.style.height = "100%";
+  img.style.objectFit = "cover";
+  previewBox.appendChild(img);
+});
 
 async function makeVideo(){
   if(!photo.files[0]){ alert('Pehle photo select karo!'); return; }
@@ -65,7 +65,7 @@ async function makeVideo(){
     // 1. Photo upload karo D-ID par
     const form = new FormData();
     form.append('image', photo.files[0]);
-    const up = await fetch('https://api.d-id.com/images', {
+   const up = await fetch('https://corsproxy.io/?url=https%3A%2F%2Fapi.d-id.com%2Fimages', { 
       method: 'POST',
       headers: { 'Authorization': 'Basic ' + DID_API_KEY },
       body: form
@@ -74,7 +74,7 @@ async function makeVideo(){
     const imageUrl = upData.url;
 
     // 2. Video banao
-    const talk = await fetch('https://api.d-id.com/talks', {
+    const talk = await fetch('https://corsproxy.io/?url=https%3A%2F%2Fapi.d-id.com%2Ftalks', {
       method: 'POST',
       headers: { 'Authorization': 'Basic ' + DID_API_KEY, 'Content-Type': 'application/json' },
       body: JSON.stringify({
