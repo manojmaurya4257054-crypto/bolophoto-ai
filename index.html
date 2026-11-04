@@ -45,8 +45,14 @@ const photo = document.getElementById('photo');
 const previewBox = document.getElementById('previewBox');
 photo.addEventListener('change', e => {
   const url = URL.createObjectURL(e.target.files[0]);
-  previewBox.innerHTML = `<img src="${url}" class="w-full h-full object-cover rounded-xl">`;
-});
+  previewBox.innerHTML = 
+});previewBox.innerHTML = "";
+const img = document.createElement('img');
+img.src = url;
+img.style.width = "100%";
+img.style.height = "100%";
+img.style.objectFit = "cover";
+previewBox.appendChild(img);
 
 async function makeVideo(){
   if(!photo.files[0]){ alert('Pehle photo select karo!'); return; }
