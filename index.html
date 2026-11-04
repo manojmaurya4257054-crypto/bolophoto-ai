@@ -39,15 +39,68 @@
 
 </section>
 <script>
-const photo=document.getElementById('photo'),previewBox=document.getElementById('previewBox');
-photo.addEventListener('change',e=>{const url=URL.createObjectURL(e.target.files[0]);previewBox.innerHTML=`<img src="${url}" class="w-full h-full object-cover">`});
-function makeVideo(){
- if(!photo.files[0]){alert('Pehle photo select karo!');return;}
- document.getElementById('btn').innerText='⏳ Video Ban Raha Hai...';
- document.getElementById('result').classList.remove('hidden');
- document.getElementById('result').innerText='Video ban raha hai... 30 sec wait karo (Demo)';
- setTimeout(()=>{document.getElementById('result').innerHTML='✅ Demo Ready! Asli API lagane ke baad yaha real video ayega.';document.getElementById('btn').innerText='✨ Free Video Banao - 0₹';},2500);
+const DID_API_KEY = Z29vZ2xlLW9hdXRoMnwxMDA1NDc4NTcwMTYwNjU5NTc0ODNAYWtfbVVoSUFIb3VSYzN2NkxZQkptdWJI:tFyRbN0hcUG6Dh4vcNLQQ
+
+const photo = document.getElementById('photo');
+const previewBox = document.getElementById('previewBox');
+photo.addEventListener('change', e => {
+  const url = URL.createObjectURL(e.target.files[0]);
+  previewBox.innerHTML = `<img src="${url}" class="w-full h-full object-cover rounded-xl">`;
+});
+
+async function makeVideo(){
+  if(!photo.files[0]){ alert('Pehle photo select karo!'); return; }
+  const text = document.getElementById('text').value || "Namaste dosto!";
+  document.getElementById('btn').innerText = 'Video Ban Raha Hai...';
+  document.getElementById('result').classList.remove('hidden');
+  document.getElementById('result').innerText = 'Video ban raha hai... 30 sec wait karo';
+
+  try {
+    // 1. Photo upload karo D-ID par
+    const form = new FormData();
+    form.append('image', photo.files[0]);
+    const up = await fetch('https://api.d-id.com/images', {
+      method: 'POST',
+      headers: { 'Authorization': 'Basic ' + DID_API_KEY },
+      body: form
+    });
+    const upData = await up.json();
+    const imageUrl = upData.url;
+
+    // 2. Video banao
+    const talk = await fetch('https://api.d-id.com/talks', {
+      method: 'POST',
+      headers: { 'Authorization': 'Basic ' + DID_API_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        source_url: imageUrl,
+        script: { type: 'text', input: text, provider: { type: 'microsoft', voice_id: 'hi-IN-SwaraNeural' } },
+        config: { fluent: true, pad_audio: 0 }
+      })
+    });
+    const talkData = await talk.json();
+    const id = talkData.id;
+
+    // 3. Video banne tak wait karo
+    let videoUrl = "";
+    for(let i=0; i<20; i++){
+      await new Promise(r => setTimeout(r, 3000));
+      const check = await fetch('https://api.d-id.com/talks/' + id, {
+        headers: { 'Authorization': 'Basic ' + DID_API_KEY }
+      });
+      const cData = await check.json();
+      if(cData.result_url){ videoUrl = cData.result_url; break; }
+    }
+
+    if(videoUrl){
+      document.getElementById('result').innerHTML = `<video src="${videoUrl}" controls autoplay class="w-full rounded-xl"></video><p class="mt-2">Ho gaya! Aapka Real Video ban gaya!</p>`;
+    } else {
+      document.getElementById('result').innerText = 'Time zyada lag raha hai, thodi der baad phir try karo';
+    }
+  } catch(e){
+    document.getElementById('result').innerText = 'Error: Key galat hai ya net slow hai. Key check karo!';
+  }
+  document.getElementById('btn').innerText = 'Free Video Banao';
 }
-</script>
+                             </script>
 </body>
  </html>
