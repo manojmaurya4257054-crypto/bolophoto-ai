@@ -55,14 +55,14 @@ async function makeVideo(){
     form.append('image', photoInput.files[0]);
     const upRes = await fetch('https://corsproxy.io/?url=https%3A%2F%2Fapi.d-id.com%2Fimages', {
       method: 'POST',
-      headers: { 'Authorization': 'Basic ' + DID_API_KEY },
+      headers: { 'Authorization': 'Basic ' + btoa(DID_API_KEY) },
       body: form
     });
     const upData = await upRes.json();
     if(!upData.url){ result.innerText = 'Error: Key galat hai! Key check karo. ' + JSON.stringify(upData); return; }
     const talkRes = await fetch('https://corsproxy.io/?url=https%3A%2F%2Fapi.d-id.com%2Ftalks', {
       method: 'POST',
-      headers: { 'Authorization': 'Basic ' + DID_API_KEY, 'Content-Type': 'application/json' },
+      headers: { 'Authorization': 'Basic ' + btoa(DID_API_KEY), 'Content-Type': 'application/json' },
       body: JSON.stringify({ source_url: upData.url, script: { type: 'text', input: text, provider: { type: 'microsoft', voice_id: 'hi-IN-SwaraNeural' } }, config: { fluent: true } })
     });
     const talkData = await talkRes.json();
@@ -70,7 +70,7 @@ async function makeVideo(){
     let videoUrl = "";
     for(let i=0; i<20; i++){
       await new Promise(r => setTimeout(r, 3000));
-      const check = await fetch('https://corsproxy.io/?url=https%3A%2F%2Fapi.d-id.com%2Ftalks%2F' + id, { headers: { 'Authorization': 'Basic ' + DID_API_KEY } });
+      const check = await fetch('https://corsproxy.io/?url=https%3A%2F%2Fapi.d-id.com%2Ftalks%2F' + id, { headers: { 'Authorization': 'Basic ' + btoa(DID_API_KEY) } }
       const cData = await check.json();
       if(cData.result_url){ videoUrl = cData.result_url; break; }
     }
