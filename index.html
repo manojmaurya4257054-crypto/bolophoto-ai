@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
@@ -10,7 +10,7 @@
 <div class="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-4">
 <h1 class="text-2xl font-bold text-center">BoloPhoto AI</h1>
 <p class="text-center text-sm mb-4">Photo Bolo - Free Video Banao</p>
-<div id="previewBox" class="w-full h-48 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden text-gray-400">Photo Preview</div>
+<div id="previewBox" class="w-full h-64 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden text-gray-400">Photo Preview</div>
 <input type="file" id="photo" accept="image/*" class="mt-4 w-full">
 <textarea id="text" class="w-full border rounded-xl p-3 mt-3" rows="3">Namaste dosto! Mera naam Manoj hai.</textarea>
 <button id="btn" onclick="makeVideo()" class="w-full mt-3 bg-gradient-to-r from-orange-500 to-pink-600 text-white font-bold py-3 rounded-xl">✨ Free Video Banao - 0₹</button>
@@ -27,54 +27,64 @@ photoInput.addEventListener('change', function() {
     previewBox.innerHTML = "";
     const img = document.createElement('img');
     img.src = e.target.result;
-    img.style.width = "100%";
-    img.style.height = "100%";
-    img.style.objectFit = "cover";
+    img.style.width = "100%"; img.style.height = "100%"; img.style.objectFit = "cover";
     previewBox.appendChild(img);
   };
   reader.readAsDataURL(this.files[0]);
 });
+async function fetchWithProxy(url, options){
+  const proxies = [
+    'https://corsproxy.io/?url=' + encodeURIComponent(url),
+    'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent(url)
+  ];
+  let lastErr = null;
+  for(let p of proxies){
+    try{
+      const r = await fetch(p, options);
+      if(r.ok) return r;
+      lastErr = new Error('Proxy status ' + r.status);
+    }catch(e){ lastErr = e; }
+  }
+  throw lastErr || new Error('All Proxy Fail');
+}
 async function makeVideo(){
   if(!photoInput.files[0]){ alert('Pehle photo select karo!'); return; }
   const text = document.getElementById('text').value;
   const result = document.getElementById('result');
   result.classList.remove('hidden');
-  result.innerText = 'Video ban raha hai... 30 sec wait karo';
+  result.innerText = 'Video ban raha hai... 30 sec wait karo, 3 Proxy try ho rahe hain';
   document.getElementById('btn').innerText = 'Video Ban Raha Hai...';
   try {
     const form = new FormData();
     form.append('image', photoInput.files[0]);
-    const upRes = await fetch('https://corsproxy.io/?url=https%3A%2F%2Fapi.d-id.com%2Fimages', {
-      method: 'POST',
-      headers: { 'Authorization': 'Basic ' + btoa(DID_API_KEY) },
-      body: form
-    });
+    const upRes = await fetchWithProxy('https://api.d-id.com/images', { method: 'POST', headers: { 'Authorization': 'Basic ' + btoa(DID_API_KEY) }, body: form });
     const upData = await upRes.json();
-    if(!upData.url){ result.innerText = 'Error: Key galat hai! ' + JSON.stringify(upData); return; }
-    const talkRes = await fetch('https://corsproxy.io/?url=https%3A%2F%2Fapi.d-id.com%2Ftalks', {
-      method: 'POST',
-      headers: { 'Authorization': 'Basic ' + btoa(DID_API_KEY), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ source_url: upData.url, script: { type: 'text', input: text, provider: { type: 'microsoft', voice_id: 'hi-IN-SwaraNeural' } }, config: { fluent: true } })
-    });
+    if(!upData.url){ result.innerText = 'D-ID Error: ' + JSON.stringify(upData) + ' - Credits khatam ho sakte hain, D-ID me check karo'; document.getElementById('btn').innerText = '✨ Free Video Banao - 0₹'; return; }
+    const talkRes = await fetchWithProxy('https://api.d-id.com/talks', { method: 'POST', headers: { 'Authorization': 'Basic ' + btoa(DID_API_KEY), 'Content-Type': 'application/json' }, body: JSON.stringify({ source_url: upData.url, script: { type: 'text', input: text, provider: { type: 'microsoft', voice_id: 'hi-IN-SwaraNeural' } }, config: { fluent: true } }) });
     const talkData = await talkRes.json();
     const id = talkData.id;
+    if(!id){ result.innerText = 'D-ID Error: ' + JSON.stringify(talkData); document.getElementById('btn').innerText = '✨ Free Video Banao - 0₹'; return; }
     let videoUrl = "";
     for(let i=0; i<20; i++){
       await new Promise(r => setTimeout(r, 3000));
-      const check = await fetch('https://corsproxy.io/?url=https%3A%2F%2Fapi.d-id.com%2Ftalks%2F' + id, { headers: { 'Authorization': 'Basic ' + btoa(DID_API_KEY) } });
-      const cData = await check.json();
-      if(cData.result_url){ videoUrl = cData.result_url; break; }
+      try{
+        const check = await fetchWithProxy('https://api.d-id.com/talks/' + id, { headers: { 'Authorization': 'Basic ' + btoa(DID_API_KEY) } });
+        const cData = await check.json();
+        if(cData.result_url){ videoUrl = cData.result_url; break; }
+        if(cData.status === 'error'){ result.innerText = 'D-ID ne reject kiya: ' + JSON.stringify(cData); break; }
+      }catch(e){}
     }
     if(videoUrl){
-      result.innerHTML = '<video src="' + videoUrl + '" controls autoplay class="w-full rounded-xl"></video><p>Ho gaya! Video ban gaya!</p>';
+      result.innerHTML = '<video src="' + videoUrl + '" controls autoplay class="w-full rounded-xl"></video><p>Ho gaya! Video ban gaya!</p><a href="'+videoUrl+'" download class="text-blue-600 font-bold">Video Download Karo</a>';
     } else {
-      result.innerText = 'Time zyada lag raha hai, thodi der baad phir try karo';
+      result.innerText = 'Video banne me time lag raha hai, 1 min baad phir try karo';
     }
   } catch(e){
-    result.innerText = 'Error: ' + e.message;
+    result.innerText = 'Error: ' + e.message + ' - Agar ye bar-bar aaye to D-ID ke Credits khatam hain. Naya D-ID account banao, nayi Key daalo.';
   }
   document.getElementById('btn').innerText = '✨ Free Video Banao - 0₹';
 }
 </script>
 </body>
-</html>
+ </html>
