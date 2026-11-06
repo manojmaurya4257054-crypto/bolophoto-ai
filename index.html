@@ -3,21 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BoloPhoto AI - Free Video Banao</title>
+<title>BoloPhoto AI - Bina Key Video</title>
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-[#FFF8E1] p-4">
 <div class="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-4">
 <h1 class="text-2xl font-bold text-center">BoloPhoto AI</h1>
-<p class="text-center text-sm mb-4">Photo Bolo - Free Video Banao</p>
+<p class="text-center text-sm mb-4">Bina Key - Phone me hi Video Banao</p>
 <div id="previewBox" class="w-full h-64 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden text-gray-400">Photo Preview</div>
 <input type="file" id="photo" accept="image/*" class="mt-4 w-full">
-<textarea id="text" class="w-full border rounded-xl p-3 mt-3" rows="3">Namaste dosto! Mera naam Manoj hai.</textarea>
-<button id="btn" onclick="makeVideo()" class="w-full mt-3 bg-gradient-to-r from-orange-500 to-pink-600 text-white font-bold py-3 rounded-xl">✨ Free Video Banao - 0₹</button>
+<textarea id="text" class="w-full border rounded-xl p-3 mt-3" rows="3">Kya bataun yaar, meri biwi ne kaha tha ki meri kabr sukhne ke baad dusri shaadi kar lena. Par pata nahi kaun haramkhor roz paani daal deta hai!</textarea>
+<button id="btn" onclick="makeVideo()" class="w-full mt-3 bg-gradient-to-r from-orange-500 to-pink-600 text-white font-bold py-3 rounded-xl">✨ Video Banao - Bina Key</button>
 <div id="result" class="hidden mt-4 p-3 bg-yellow-50 rounded-xl text-sm"></div>
+<canvas id="myCanvas" width="512" height="512" class="hidden"></canvas>
 </div>
 <script>
-const DID_API_KEY = "Z29vZ2xlLW9hdXRoMnwxMDA1NDc4NTcwMTYwNjU5NTc0ODNAYWtfbVVoSUFIb3VSYzN2NkxZQkptdWJI:tFyRbN0hcUG6Dh4vcNLQQ";
+let myImg = null;
 const photoInput = document.getElementById('photo');
 const previewBox = document.getElementById('previewBox');
 photoInput.addEventListener('change', function() {
@@ -29,62 +30,47 @@ photoInput.addEventListener('change', function() {
     img.src = e.target.result;
     img.style.width = "100%"; img.style.height = "100%"; img.style.objectFit = "cover";
     previewBox.appendChild(img);
+    myImg = new Image();
+    myImg.src = e.target.result;
   };
   reader.readAsDataURL(this.files[0]);
 });
-async function fetchWithProxy(url, options){
-  const proxies = [
-    'https://corsproxy.io/?url=' + encodeURIComponent(url),
-    'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
-    'https://api.allorigins.win/raw?url=' + encodeURIComponent(url)
-  ];
-  let lastErr = null;
-  for(let p of proxies){
-    try{
-      const r = await fetch(p, options);
-      if(r.ok) return r;
-      lastErr = new Error('Proxy status ' + r.status);
-    }catch(e){ lastErr = e; }
-  }
-  throw lastErr || new Error('All Proxy Fail');
-}
 async function makeVideo(){
-  if(!photoInput.files[0]){ alert('Pehle photo select karo!'); return; }
+  if(!myImg){ alert('Pehle photo select karo!'); return; }
   const text = document.getElementById('text').value;
   const result = document.getElementById('result');
   result.classList.remove('hidden');
-  result.innerText = 'Video ban raha hai... 30 sec wait karo, 3 Proxy try ho rahe hain';
-  document.getElementById('btn').innerText = 'Video Ban Raha Hai...';
-  try {
-    const form = new FormData();
-    form.append('image', photoInput.files[0]);
-    const upRes = await fetchWithProxy('https://api.d-id.com/images', { method: 'POST', headers: { 'Authorization': 'Basic ' + btoa(DID_API_KEY) }, body: form });
-    const upData = await upRes.json();
-    if(!upData.url){ result.innerText = 'D-ID Error: ' + JSON.stringify(upData) + ' - Credits khatam ho sakte hain, D-ID me check karo'; document.getElementById('btn').innerText = '✨ Free Video Banao - 0₹'; return; }
-    const talkRes = await fetchWithProxy('https://api.d-id.com/talks', { method: 'POST', headers: { 'Authorization': 'Basic ' + btoa(DID_API_KEY), 'Content-Type': 'application/json' }, body: JSON.stringify({ source_url: upData.url, script: { type: 'text', input: text, provider: { type: 'microsoft', voice_id: 'hi-IN-SwaraNeural' } }, config: { fluent: true } }) });
-    const talkData = await talkRes.json();
-    const id = talkData.id;
-    if(!id){ result.innerText = 'D-ID Error: ' + JSON.stringify(talkData); document.getElementById('btn').innerText = '✨ Free Video Banao - 0₹'; return; }
-    let videoUrl = "";
-    for(let i=0; i<20; i++){
-      await new Promise(r => setTimeout(r, 3000));
-      try{
-        const check = await fetchWithProxy('https://api.d-id.com/talks/' + id, { headers: { 'Authorization': 'Basic ' + btoa(DID_API_KEY) } });
-        const cData = await check.json();
-        if(cData.result_url){ videoUrl = cData.result_url; break; }
-        if(cData.status === 'error'){ result.innerText = 'D-ID ne reject kiya: ' + JSON.stringify(cData); break; }
-      }catch(e){}
-    }
-    if(videoUrl){
-      result.innerHTML = '<video src="' + videoUrl + '" controls autoplay class="w-full rounded-xl"></video><p>Ho gaya! Video ban gaya!</p><a href="'+videoUrl+'" download class="text-blue-600 font-bold">Video Download Karo</a>';
-    } else {
-      result.innerText = 'Video banne me time lag raha hai, 1 min baad phir try karo';
-    }
-  } catch(e){
-    result.innerText = 'Error: ' + e.message + ' - Agar ye bar-bar aaye to D-ID ke Credits khatam hain. Naya D-ID account banao, nayi Key daalo.';
+  result.innerText = 'Video Record ho raha hai... Photo bol rahi hai, awaaz suno, band mat karna!';
+  const canvas = document.getElementById('myCanvas');
+  const ctx = canvas.getContext('2d');
+  const stream = canvas.captureStream(30);
+  const recorder = new MediaRecorder(stream, {mimeType: 'video/webm'});
+  let chunks = [];
+  recorder.ondataavailable = e => chunks.push(e.data);
+  recorder.onstop = () => {
+    const blob = new Blob(chunks, {type: 'video/webm'});
+    const url = URL.createObjectURL(blob);
+    result.innerHTML = '<video src="'+url+'" controls autoplay loop class="w-full rounded-xl"></video><p class="mt-2 font-bold text-green-600">Ho gaya! Video ban gaya!</p><a href="'+url+'" download="bolophoto-video.webm" class="block text-center bg-green-600 text-white py-2 rounded-xl mt-2 font-bold">Video Download Karo</a><p class="text-xs mt-2">Note: Ye video me photo hilegi. Awaaz ke liye isi text ko CapCut me Voiceover me daal do, 1 min ka kaam hai.</p>';
+  };
+  recorder.start();
+  let startTime = Date.now();
+  function draw(){
+    let t = (Date.now() - startTime) / 1000;
+    let zoom = 1 + Math.sin(t * 1.2) * 0.06;
+    let shake = Math.sin(t * 8) * 2;
+    ctx.fillStyle = '#000'; ctx.fillRect(0,0,512,512);
+    let w = 512 * zoom, h = 512 * zoom;
+    ctx.drawImage(myImg, (512-w)/2 + shake, (512-h)/2, w, h);
+    if(recorder.state === 'recording') requestAnimationFrame(draw);
   }
-  document.getElementById('btn').innerText = '✨ Free Video Banao - 0₹';
+  draw();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'hi-IN'; utter.rate = 0.95; utter.pitch = 0.9;
+  utter.onend = () => { setTimeout(()=>{ if(recorder.state==='recording') recorder.stop(); }, 500); };
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utter);
+  setTimeout(()=>{ if(recorder.state==='recording') recorder.stop(); }, 25000);
 }
 </script>
 </body>
- </html>
+</html>
